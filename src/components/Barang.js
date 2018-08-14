@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { Redirect } from 'react-router-dom';
+import {Growl} from 'primereact/growl';
 import Header from './Header';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
@@ -15,6 +16,7 @@ class Barang extends Component {
             data_barang:[],
             imageURL: '',
             edit_barang_status: false
+            
 
         };
         this._handleSubmit = this._handleSubmit.bind(this);
@@ -22,7 +24,7 @@ class Barang extends Component {
     }
 
     onHide(event) {
-        this.setState({visible: false});
+        this.setState({edit_barang_status: false});
     }
 
     componentDidMount(){
@@ -34,7 +36,7 @@ class Barang extends Component {
         });
         
         if(this.state.login_status === null){
-            window.location.href = 'http://localhost:3001'
+            window.location.href = 'http://localhost:3001' ;
         }
     }
 
@@ -61,8 +63,16 @@ class Barang extends Component {
         }
     }
 
-    edit_barang(_id){
-        console.log(_id)
+    edit_barang(_id, nama, harga, img_url){
+
+        if(_id){
+
+            console.log(_id)
+            this.setState({edit_barang_status: true, edit_id:_id, nama_barang:nama, harga:harga, img_url:img_url})
+    
+        } else {
+            this.growl.show({severity: 'success', summary: 'Success Message', detail: 'Order submitted'});
+        }
     }
 
     _handleImageChange(e) {
@@ -106,7 +116,7 @@ class Barang extends Component {
             // var img = 'https://image.tmdb.org/t/p/w500'+item.backdrop_path;
             
             let img_barang = <img alt="bjhsx" src={item.img_url} style={{width: '50px'}}/>;
-            let action_edit = <button class="btn btn-warning btn-xs" onClick={() => this.edit_barang(item._id)}><i class="fa fa-pencil"></i></button>
+            let action_edit = <button class="btn btn-warning btn-xs" onClick={() => this.edit_barang(item._id, item.nama_barang, item.harga, item.img_url)}><i class="fa fa-pencil"></i></button>
             let action_remove = <button class="btn btn-danger btn-xs" onClick={() => this.hapus_barang()} ><i class="fa fa-remove"></i></button>
             
             return (
@@ -121,15 +131,19 @@ class Barang extends Component {
             )
         })
 
+
         return (
             
             <div>
-                <Dialog header="Godfather I" visible={this.state.edit_barang_status} width="350px" modal={true} minY={70} onHide={this.onHide} maximizable={true}>
-                    The story begins as Don Vito Corleone, the head of a New York Mafia family, oversees his daughter's wedding. 
-                    His beloved son Michael has just come home from the war, but does not intend to become part of his father's business. 
-                    Through Michael's life the nature of the family business becomes clear. The business of the family is just like the head of the family, 
-                    kind and benevolent to those who give respect, but given to ruthless violence whenever anything stands against the good of the family.
+                <Dialog header="Edit Barang" visible={this.state.edit_barang_status} width="350px" modal={true} minY={70} onHide={this.onHide} maximizable={true}>
+                    
+                    <img src={this.state.img_url} width="100%" />
+                    <label>Nama Barang</label>
+                    <input type="text" class="form-control" placeholder="Nama Barang" value={this.state.nama_barang}/>
+                    <label>Harga</label>
+                    <input type="number" class="form-control" placeholder="Harga" value={this.state.harga}/>
                 </Dialog>
+                <Growl ref={(el) => this.growl = el} />
                 <div class='container' style={{paddingTop: '10px'}}>
 
                     <Header  />
